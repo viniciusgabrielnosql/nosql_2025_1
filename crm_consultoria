@@ -1,5 +1,6 @@
 #11/02/2025
-#CRM para consultoria ambiental
+#CRM para consultoria ambiental: um sistema que cria um CRUD para cadastro de clientes e ordens de seviço, e distribuição das mesmas para
+#o corpo de funcionários, com o intuito de facilitar registros e controle das atividades que foram/estão/serão efetuadas pela consultoria.
 
 #13/02/2025
 #CRUD de clientes e ordens de serviço, e distribuição de OS para funcionários.
