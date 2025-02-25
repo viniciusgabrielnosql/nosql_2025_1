@@ -1,0 +1,44 @@
+#Armazena dados dos funcionários
+
+{
+    "id_func": "001",
+    "nome_func": "João José",
+    "especialidade_func": "Outorga",
+    "end_func": "Avenida João José",
+    "data_contrato": "01/01/2025",
+    "telefone_contato": "03491111-2222",
+    "email_contato": "joaojose@joao.com",
+    "habilitacao": "Sim",
+    "disponibilidade": ["Disponível", "Indisponível"]
+}
+
+#Armazena dados dos clientes
+
+{
+    "id_cliente": "0000001",
+    "nome_cliente": "José João",
+    "end_cliente": "Fazenda Maria",
+    "telefone_cliente": "03491111-3333",
+    "servico_contratado": "Outorga",
+}
+
+#Armazena dados de Ordem de Serviço
+
+{
+    "id_os": "xxxxxxx1",
+    "id_cliente": "0000001",
+    "data_solicitacao": "01/02/2025",
+    "situacao": ["Distribuindo", "Em andamento", "Finalizado"],
+}
+
+#Distribui a Ordem de Serviço
+
+{
+    "id_os": "xxxxxxx1",
+    "id_cliente": "0000001",
+    "data_distribuicao": "02/02/2025",
+    "data_previsao": "05/02/2025",
+    "especialidade_func": "Outorga",
+    "qtd_func": 2,
+    "habilitacao": "Sim",
+}
