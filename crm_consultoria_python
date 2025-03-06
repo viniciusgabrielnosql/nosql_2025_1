@@ -55,5 +55,3 @@ funcionarios.insert_one(funcionario_doc)
 clientes.insert_one(cliente_doc)
 ordens_servico.insert_one(ordem_servico_doc)
 distribuicoes_os.insert_one(distribuicao_os_doc)
-
-print("Documentos inseridos com sucesso!")
