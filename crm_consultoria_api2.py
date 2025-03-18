@@ -19,11 +19,16 @@ clientes = db["clientes"]
 ordens_servico = db["ordens_servico"]
 distribuicoes_os = db["distribuicoes_os"]
 
-# Definição do app FastAPI
+# 🔍 Criando índices para otimizar consultas
+funcionarios.create_index("especialidade_func")
+clientes.create_index("servico_contratado")
+ordens_servico.create_index("id_cliente")
+distribuicoes_os.create_index([("especialidade_func", 1), ("habilitacao", 1)])
+
+# 🚀 Inicialização do FastAPI
 app = FastAPI()
 
 # 📌 Modelos Pydantic para validação de entrada
-
 class Funcionario(BaseModel):
     id_func: str
     nome_func: str
@@ -70,10 +75,12 @@ def criar_funcionario(funcionario: Funcionario):
 
 @app.get("/funcionarios/")
 def listar_funcionarios():
-    funcionarios_lista = list(funcionarios.find({}, {"_id": 0}))
-    print("🔍 Dados retornados pela API:", funcionarios_lista)  # Adiciona um print para depuração
-    return funcionarios_lista
+    return list(funcionarios.find({}, {"_id": 0}))
 
+# 🔎 Busca funcionários por especialidade (usando índice)
+@app.get("/funcionarios/especialidade/{especialidade}")
+def buscar_funcionarios_por_especialidade(especialidade: str):
+    return list(funcionarios.find({"especialidade_func": especialidade}, {"_id": 0}))
 
 ## 👤 Clientes
 @app.post("/clientes/", response_model=Cliente)
@@ -88,6 +95,11 @@ def criar_cliente(cliente: Cliente):
 def listar_clientes():
     return list(clientes.find({}, {"_id": 0}))
 
+# 🔎 Busca clientes por serviço contratado (usando índice)
+@app.get("/clientes/servico/{servico}")
+def buscar_clientes_por_servico(servico: str):
+    return list(clientes.find({"servico_contratado": servico}, {"_id": 0}))
+
 ## 📄 Ordens de Serviço
 @app.post("/ordens_servico/", response_model=OrdemServico)
 def criar_ordem_servico(ordem: OrdemServico):
@@ -100,6 +112,14 @@ def criar_ordem_servico(ordem: OrdemServico):
 @app.get("/ordens_servico/", response_model=List[OrdemServico])
 def listar_ordens_servico():
     return list(ordens_servico.find({}, {"_id": 0}))
+
+# 🔎 Busca Ordens de Serviço por ID do Cliente (usando índice)
+@app.get("/ordens_servico/cliente/{id_cliente}")
+def buscar_ordens_por_cliente(id_cliente: str):
+    servicos = list(ordens_servico.find({"id_cliente": id_cliente}, {"_id": 0}))
+    if not servicos:
+        raise HTTPException(status_code=404, detail="Nenhuma ordem de serviço encontrada para esse cliente.")
+    return {"ordens_servico": servicos}
 
 ## 📌 Distribuições de OS
 @app.post("/distribuicoes_os/", response_model=DistribuicaoOS)
@@ -114,7 +134,22 @@ def criar_distribuicao_os(distribuicao: DistribuicaoOS):
 def listar_distribuicoes_os():
     return list(distribuicoes_os.find({}, {"_id": 0}))
 
-# Rota de teste
+# 🔎 Busca funcionários qualificados por especialidade e habilitação (usando índice composto)
+@app.get("/funcionarios/qualificados/")
+def buscar_funcionarios_qualificados(especialidade: str, habilitacao: str):
+    query = {"especialidade_func": especialidade, "habilitacao": habilitacao}
+
+    funcionarios_encontrados = list(funcionarios.find(query, {"_id": 0}))  
+
+    if not funcionarios_encontrados:
+        raise HTTPException(
+            status_code=404,
+            detail=f"Nenhum funcionário encontrado com especialidade '{especialidade}' e habilitação '{habilitacao}'."
+        )
+
+    return {"funcionarios_qualificados": funcionarios_encontrados}
+
+# 🏠 Rota de teste
 @app.get("/")
 def root():
-    return {"mensagem": "API de gerenciamento de ordens de serviço funcionando!"}
+    return {"mensagem": "API de gerenciamento de ordens de serviço funcionando com índices otimizados!"}
