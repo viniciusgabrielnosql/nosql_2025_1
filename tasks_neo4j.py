@@ -24,9 +24,6 @@ class RankingResult(BaseModel):
 
 @app.get("/neo4j/link-prediction", response_model=List[CollaborationPrediction])
 def predict_collaborations(limit: int = 5):
-    """
-    Predict which employees are likely to collaborate based on past interactions
-    """
     try:
         with neo4j_driver.session() as session:
             result = session.run("""
@@ -43,9 +40,6 @@ def predict_collaborations(limit: int = 5):
 
 @app.get("/neo4j/community-detection", response_model=List[CommunityDetectionResult])
 def detect_communities():
-    """
-    Identify natural groupings of employees using Louvain algorithm
-    """
     try:
         with neo4j_driver.session() as session:
             result = session.run("""
@@ -67,9 +61,6 @@ def detect_communities():
 
 @app.get("/neo4j/centrality", response_model=List[CentralityResult])
 def calculate_centrality():
-    """
-    Calculate betweenness centrality to find key connector employees
-    """
     try:
         with neo4j_driver.session() as session:
             result = session.run("""
@@ -92,9 +83,6 @@ def calculate_centrality():
 
 @app.get("/neo4j/path/{specialty1}/{specialty2}", response_model=PathResult)
 def find_path_between_specialties(specialty1: str, specialty2: str):
-    """
-    Find the shortest path between two specialties
-    """
     try:
         with neo4j_driver.session() as session:
             result = session.run("""
@@ -118,9 +106,6 @@ def find_path_between_specialties(specialty1: str, specialty2: str):
 
 @app.get("/neo4j/ranking", response_model=List[RankingResult])
 def rank_employees():
-    """
-    Rank employees by their importance using PageRank algorithm
-    """
     try:
         with neo4j_driver.session() as session:
             result = session.run("""
