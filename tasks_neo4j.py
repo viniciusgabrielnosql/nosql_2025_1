@@ -1,26 +1,26 @@
-class CollaborationPrediction(BaseModel):
-    employee1: str
-    employee2: str
-    score: float
+class previs_colab(BaseModel):
+    func1: str
+    func2: str
+    pontos: float
 
-class CommunityDetectionResult(BaseModel):
-    employee: str
-    community_id: int
+class comunidade_detec(BaseModel):
+    func: str
+    comunidade_id: int
 
-class CentralityResult(BaseModel):
-    employee: str
-    score: float
+class calc_centralidade(BaseModel):
+    func: str
+    pontos: float
 
-class PathResult(BaseModel):
+class path_especialidade(BaseModel):
     nodes: List[str]
-    relationships: List[str]
+    relacao: List[str]
 
-class RankingResult(BaseModel):
-    employee: str
-    score: float
+class ranking_func(BaseModel):
+    func: str
+    pontos: float
 
-@app.get("/neo4j/link-prediction", response_model=List[CollaborationPrediction])
-def predict_collaborations(limit: int = 5):
+@app.get("/neo4j/link-prediction", response_model=List[previs_colab])
+def previs_colaboracao(limit: int = 5):
     try:
         with neo4j_driver.session() as session:
             result = session.run("""
@@ -29,14 +29,14 @@ def predict_collaborations(limit: int = 5):
                 WITH f1, f2, count(d) AS score
                 ORDER BY score DESC
                 LIMIT $limit
-                RETURN f1.nome AS employee1, f2.nome AS employee2, score
+                RETURN f1.nome AS func1, f2.nome AS func2, pontos
             """, {"limit": limit})
             return [dict(record) for record in result]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/neo4j/community-detection", response_model=List[CommunityDetectionResult])
-def detect_communities():
+@app.get("/neo4j/community-detection", response_model=List[comunidade_detec])
+def detectar_comunidade():
     try:
         with neo4j_driver.session() as session:
             result = session.run("""
@@ -49,15 +49,15 @@ def detect_communities():
                 })
                 YIELD nodeId, communityId
                 MATCH (f:Funcionario) WHERE id(f) = nodeId
-                RETURN f.nome AS employee, communityId AS community_id
-                ORDER BY community_id
+                RETURN f.nome AS func, communityId AS comunidade_id
+                ORDER BY comunidade_id
             """)
             return [dict(record) for record in result]
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/neo4j/centrality", response_model=List[CentralityResult])
-def calculate_centrality():
+@app.get("/neo4j/centrality", response_model=List[calc_centralidade])
+def calcular_centralidade():
     try:
         with neo4j_driver.session() as session:
             result = session.run("""
@@ -70,7 +70,7 @@ def calculate_centrality():
                 })
                 YIELD nodeId, score
                 MATCH (f:Funcionario) WHERE id(f) = nodeId
-                RETURN f.nome AS employee, score
+                RETURN f.nome AS func, pontos
                 ORDER BY score DESC
                 LIMIT 10
             """)
@@ -78,8 +78,8 @@ def calculate_centrality():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/neo4j/path/{specialty1}/{specialty2}", response_model=PathResult)
-def find_path_between_specialties(specialty1: str, specialty2: str):
+@app.get("/neo4j/path/{specialty1}/{specialty2}", response_model=path_especialidade)
+def path_especialidade(specialty1: str, specialty2: str):
     try:
         with neo4j_driver.session() as session:
             result = session.run("""
@@ -87,7 +87,7 @@ def find_path_between_specialties(specialty1: str, specialty2: str):
                       (f2:Funcionario {especialidade: $specialty2}),
                       p = shortestPath((f1)-[:REQUER*]-(f2))
                 RETURN [n IN nodes(p) | n.nome] AS nodes, 
-                       [r IN relationships(p) | type(r)] AS relationships
+                       [r IN relacao(p) | type(r)] AS relacao
             """, {"specialty1": specialty1, "specialty2": specialty2})
             
             record = result.single()
@@ -96,13 +96,13 @@ def find_path_between_specialties(specialty1: str, specialty2: str):
             
             return {
                 "nodes": record["nodes"],
-                "relationships": record["relationships"]
+                "relacao": record["relacao"]
             }
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-@app.get("/neo4j/ranking", response_model=List[RankingResult])
-def rank_employees():
+@app.get("/neo4j/ranking", response_model=List[ranking_func])
+def rank_func():
     try:
         with neo4j_driver.session() as session:
             result = session.run("""
@@ -115,7 +115,7 @@ def rank_employees():
                 })
                 YIELD nodeId, score
                 MATCH (f:Funcionario) WHERE id(f) = nodeId
-                RETURN f.nome AS employee, score
+                RETURN f.nome AS func, pontos
                 ORDER BY score DESC
                 LIMIT 10
             """)
