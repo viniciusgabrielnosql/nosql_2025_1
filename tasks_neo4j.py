@@ -1,4 +1,3 @@
-# Add these new Pydantic models at the top with your other models
 class CollaborationPrediction(BaseModel):
     employee1: str
     employee2: str
@@ -19,8 +18,6 @@ class PathResult(BaseModel):
 class RankingResult(BaseModel):
     employee: str
     score: float
-
-# Add these new endpoints after your existing routes
 
 @app.get("/neo4j/link-prediction", response_model=List[CollaborationPrediction])
 def predict_collaborations(limit: int = 5):
